@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
  
 class ViewController: UIViewController{
     
@@ -19,12 +20,40 @@ class ViewController: UIViewController{
     
     
     @IBAction func importBtnTapped(_ sender: Any) {
-        videoPicker.allowsEditing = false
-        videoPicker.sourceType = .photoLibrary
-        videoPicker.delegate = self
-        videoPicker.mediaTypes = ["public.image", "public.movie"]
+//        videoPicker.allowsEditing = false
+//        videoPicker.sourceType = .photoLibrary
+//        videoPicker.delegate = self
+//        videoPicker.mediaTypes = ["public.image", "public.movie"]
+//
+//        present(videoPicker, animated: true, completion: nil)
+        
+        func thumbnailImageFor(fileUrl:URL) -> UIImage? {
 
-        present(videoPicker, animated: true, completion: nil)
+            let video = AVURLAsset(url: fileUrl, options: [:])
+            let assetImgGenerate = AVAssetImageGenerator(asset: video)
+            assetImgGenerate.appliesPreferredTrackTransform = true
+
+            let videoDuration:CMTime = video.duration
+            let durationInSeconds:Float64 = CMTimeGetSeconds(videoDuration)
+
+            let numerator = Int64(1)
+            let denominator = videoDuration.timescale
+            let time = CMTimeMake(value: numerator, timescale: denominator)
+
+            do {
+                let img = try assetImgGenerate.copyCGImage(at: time, actualTime: nil)
+                let thumbnail = UIImage(cgImage: img)
+                return thumbnail
+            } catch {
+                print(error)
+                return nil
+            }
+        }
+        
+        let url: URL = URL(string: "https://www.youtube.com/watch?v=fzQ6gRAEoy0")!
+
+        let image: UIImage? = thumbnailImageFor(fileUrl: url)
+        print("Image: \(image)")
         
     }
     
